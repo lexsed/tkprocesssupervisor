@@ -62,8 +62,8 @@ else:
     import os
                 
 
-    def stop_pid(pid):
-        os.system(f"taskkill /PID {pid}")
+    def stop_pid(pid, force=False):
+        return os.system(f"taskkill /PID {pid} /T{ ' /F' if force else '' }")
 
 
 
@@ -196,8 +196,10 @@ class minExpect:
                 self.child.wait(timeout=4)  # wait for the process to exit
         except subprocess.TimeoutExpired:
             print("timeout on close")
+            if isWindows():
+                    stop_pid(self.child.pid, force=True)
+
             if self.child.poll() is  None:
-                self.child.terminate()
                 self.child.kill()  # kill the process if it doesn't exit
 
             pass
