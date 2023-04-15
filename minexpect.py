@@ -1,3 +1,15 @@
+"""
+Minimalistic expect class for subprocess.Popen
+works on Linux, and Windows
+
+Opens a subprocess.Popen object, and provides a minimalistic expect function.
+
+Inline implementation of the pipe_no_wait function, which is used to make the pipe non-blocking,
+on both Linux and Windows.
+
+
+"""
+
 #%%
 import re
 import subprocess

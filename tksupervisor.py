@@ -1,3 +1,25 @@
+"""
+A simple process supervisor using tkinter.
+
+This is a simple process supervisor that uses tkinter to display the status of
+multiple processes.  The processes are defined in a json file.  The json file has two
+top level keys, "config" and "processes". 
+
+The "config" key contains a dictionary of configuration items.  (TBD)
+
+The "processes" key contains a list of dictionaries.  Each dictionary contains the
+configuration for a single process.  The dictionary contains the following keys:
+
+    "name" - the name of the process
+    "command" - the command to run
+    "run" - True if the process should be started when the supervisor is started
+    "initial_delay" - the number of seconds to wait before starting the process
+    "backoff_on_restart" - the number of seconds to wait before restarting the process
+
+
+
+"""
+
 
 import time
 from mypgroup import myprocess, MyPGroup
