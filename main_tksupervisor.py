@@ -22,13 +22,14 @@ configuration for a single process.  The dictionary contains the following keys:
 
 
 import time
+from myicon import get_my_icon
 from mypgroup import myprocess, MyPGroup
 import argparse
 import json
-import psutil
+
 
 import tkinter as tk
-import tkinter.tix as tix
+#import tkinter.tix as tix
 import tkinter.ttk as ttk
 
 import json
@@ -52,11 +53,14 @@ processes = config_data.get("processes", [])
         
 
 
-class MySupervisorWindow(tix.Tk):
+class MySupervisorWindow(tk.Tk):
     def __init__(self, config, processes):
         super().__init__()
-        self.title("Process Supervisor")
+        self.title("SIT Process Supervisor")
         self.geometry("600x480")
+        img = tk.PhotoImage(data=get_my_icon())
+        self.iconphoto(True,img)
+
         self.config = config
         self.processes = processes
         self.pgroup = MyPGroup(config, processes)
@@ -69,11 +73,12 @@ class MySupervisorWindow(tix.Tk):
         for i,proc in enumerate(self.pgroup.processses):
             state = ''
             if proc.running():
-                pid = proc.pid if proc.pid is not None else float('nan')
+                pid = proc.pid
+                pid_str = f'{pid:8.0f}' if pid else ' '*8
                 if proc.run:
-                    state = f'🏃 running {proc.pid:5d}'
+                    state = f'🏃 running {pid_str}'
                 else:
-                    state = f'⬇ stopping {pid:5.0f}'
+                    state = f'⬇ stopping {pid_str}'
             else:
                 if proc.run == False:
                     state = '🛑 stopped'
@@ -85,13 +90,13 @@ class MySupervisorWindow(tix.Tk):
 
 
             usage = proc.cpuusage()
-            yield f'{i:02d}: {state:20s} | {proc.name:30s} | {usage}'
+            yield f'{i:02d}: {state:20s} | {proc.name:30s} | {usage}%'
         
         
     def create_widgets(self):
 
         # frame with main controls
-        self.control_frame = tk.Frame(self)
+        self.control_frame = tk.LabelFrame(self, text="Controls")
         self.control_frame.pack(side=tk.TOP, fill=tk.X, expand=False)
         sep = ttk.Separator(self.control_frame, orient=tk.HORIZONTAL)
         sep.pack(side=tk.LEFT, fill=tk.Y, expand=False, padx=10, pady=5)
@@ -142,6 +147,11 @@ class MySupervisorWindow(tix.Tk):
         self.item_font =tkinter.font.Font( family = "Courier New", 
                                  size = 10, 
                                  weight = "normal")
+        
+        # add a vertical scrollbar to the text widget
+        self.scroll_yscroll = tk.Scrollbar(self.text, orient=tk.VERTICAL, command=self.text.yview)
+        self.scroll_yscroll.pack(side=tk.RIGHT, fill=tk.Y)
+        self.text['yscrollcommand'] = self.scroll_yscroll.set
         
         self.process_list.configure(font=self.item_font)
         
@@ -254,11 +264,20 @@ class MySupervisorWindow(tix.Tk):
 
         self.after(500, self.update)
 
+        def __enter__(self):
+            return self
+        
+        def __exit__(self, exc_type, exc_value, traceback):
+            self.processes.stop_all()
+            return False
+    
+
 
 def main():
 
-    root = MySupervisorWindow(config, processes)
-    root.mainloop()
+    with MySupervisorWindow(config, processes) as root:
+    
+        root.mainloop()
         
         
 
