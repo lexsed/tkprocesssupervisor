@@ -75,7 +75,7 @@ class minExpect:
     :type command: str
     """
 
-    def __init__(self, command):
+    def __init__(self, command, shell=True):
         
         # create the process with the command
         self.child = subprocess.Popen(
@@ -83,6 +83,7 @@ class minExpect:
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
+            shell=shell,
         )
         
         

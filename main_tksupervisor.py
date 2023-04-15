@@ -56,7 +56,7 @@ processes = config_data.get("processes", [])
 class MySupervisorWindow(tk.Tk):
     def __init__(self, config, processes):
         super().__init__()
-        self.title("SIT Process Supervisor")
+        self.title("Process Supervisor")
         self.geometry("600x480")
         img = tk.PhotoImage(data=get_my_icon())
         self.iconphoto(True,img)
