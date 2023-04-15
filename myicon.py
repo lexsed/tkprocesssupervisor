@@ -10,10 +10,10 @@ def get_my_icon():
 
 
 if __name__ == "__main__":
-    with open("icon32.png", "rb") as f:
+    with open("img/icon32.png", "rb") as f:
         icon = base64.b64encode(f.read())
 
-    with open("myicon_tmp.txt", "w") as f:
+    with open("img/myicon_tmp.txt", "w") as f:
         f.write("icon = '''" + icon.decode() + "'''")
 
 
