@@ -8,6 +8,14 @@
                  {  
                 "name": "Endless print",
              "command": "python endlessprint.py",
-                 "run": true    }]
+                 "run": true    },
+                    {   
+                "name": "winver",
+                "command": "winver.exe",
+                    "run": false    }
+                        
+                
+                ]
+                 
 
 }

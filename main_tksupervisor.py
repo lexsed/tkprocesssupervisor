@@ -69,7 +69,11 @@ class MySupervisorWindow(tix.Tk):
         for i,proc in enumerate(self.pgroup.processses):
             state = ''
             if proc.running():
-                state = '🏃 running'
+                pid = proc.pid if proc.pid is not None else float('nan')
+                if proc.run:
+                    state = f'🏃 running {proc.pid:5d}'
+                else:
+                    state = f'⬇ stopping {pid:5.0f}'
             else:
                 if proc.run == False:
                     state = '🛑 stopped'

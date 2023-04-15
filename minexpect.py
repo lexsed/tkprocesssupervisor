@@ -57,6 +57,13 @@ else:
             print(WinError())
             return False
         return True
+    
+
+    import os
+                
+
+    def stop_pid(pid):
+        os.system(f"taskkill /PID {pid}")
 
 
 
@@ -170,17 +177,22 @@ class minExpect:
         self.child.stdin.close()
         self.child.stdout.close()
         self.child.stderr.close()
+        if isWindows():
+            stop_pid(self.child.pid)
+        
+            
+        
         try:
             # wait for the process to exit
             self.child.wait(timeout=.5)  # wait for the process to exit
         except subprocess.TimeoutExpired:
             pass
-                
+        
         try:
             # wait for the process to exit
             if self.child.poll() is  None:
                 self.child.terminate()
-            self.child.wait(timeout=4)  # wait for the process to exit
+                self.child.wait(timeout=4)  # wait for the process to exit
         except subprocess.TimeoutExpired:
             print("timeout on close")
             if self.child.poll() is  None:

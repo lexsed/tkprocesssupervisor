@@ -46,6 +46,7 @@ class myprocess():
         self._backoff(process_entry.get("initial_delay", 0))
 
         self.last_return_code = None
+        self.pid = None
 
         self.thread.start()
         
@@ -144,6 +145,7 @@ class myprocess():
                                 self.was_running = False
                                 try:
                                     self.last_return_code = self.process.child.poll()
+                                    self.pid = None
                                 except Exception as e:
                                     pass
                                 self._backoff() # backoff on restart
@@ -153,6 +155,9 @@ class myprocess():
                                 self._backoff()
                                 #self.buffer = ""
                         else:
+                            if self.pid is None:
+                                self.pid = self.process.child.pid
+                                
                             self._check_buffer()
                     else:
                         if self.running():
