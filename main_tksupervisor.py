@@ -96,32 +96,32 @@ class MySupervisorWindow(tk.Tk):
     def create_widgets(self):
 
         # frame with main controls
-        self.control_frame = tk.LabelFrame(self, text="Controls")
+        self.control_frame = ttk.LabelFrame(self, text="Controls")
         self.control_frame.pack(side=tk.TOP, fill=tk.X, expand=False)
-        sep = ttk.Separator(self.control_frame, orient=tk.HORIZONTAL)
-        sep.pack(side=tk.LEFT, fill=tk.Y, expand=False, padx=10, pady=5)
+      #  sep = ttk.Separator(self.control_frame, orient=tk.HORIZONTAL)
+      #  sep.pack(side=tk.LEFT, fill=tk.Y, expand=False, padx=10, pady=5)
 
 
-        self.button_start = tk.Button(self.control_frame, text="Start", command=lambda: self.do_selected(self.start))
+        self.button_start = ttk.Button(self.control_frame, text="Start", command=lambda: self.do_selected(self.start))
         self.button_start.pack(side=tk.LEFT, fill=tk.X, expand=False)
         
-        self.button_start = tk.Button(self.control_frame, text="Restart", command=lambda: self.do_selected(self.restart))
+        self.button_start = ttk.Button(self.control_frame, text="Restart", command=lambda: self.do_selected(self.restart))
         self.button_start.pack(side=tk.LEFT, fill=tk.X, expand=False)
 
-        self.button_stop = tk.Button(self.control_frame, text="Stop", command= lambda: self.do_selected(self.stop))
+        self.button_stop = ttk.Button(self.control_frame, text="Stop", command= lambda: self.do_selected(self.stop))
         self.button_stop.pack(side=tk.LEFT, fill=tk.X, expand=False)
 
         sep = ttk.Separator(self.control_frame, orient=tk.HORIZONTAL)
         sep.pack(side=tk.LEFT, fill=tk.Y, expand=False, padx=30, pady=5)
 
 
-        self.button_start = tk.Button(self.control_frame, text="Start all", command=self.start)
+        self.button_start = ttk.Button(self.control_frame, text="Start all", command=self.start)
         self.button_start.pack(side=tk.LEFT, fill=tk.X, expand=False)
         
-        self.button_start = tk.Button(self.control_frame, text="Restart all", command=self.start)
+        self.button_start = ttk.Button(self.control_frame, text="Restart all", command=self.start)
         self.button_start.pack(side=tk.LEFT, fill=tk.X, expand=False)
 
-        self.button_stop = tk.Button(self.control_frame, text="Stop all", command=self.stop)
+        self.button_stop = ttk.Button(self.control_frame, text="Stop all", command=self.stop)
         self.button_stop.pack(side=tk.LEFT, fill=tk.X, expand=False)
 
         ###
