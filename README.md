@@ -1,4 +1,4 @@
-# Process supervisor
+# Process supervisor ![default icon](./icon.png)
 
 This is a simple process supervisor that uses tkinter to display the status of
 multiple processes.  
