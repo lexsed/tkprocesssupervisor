@@ -1,0 +1,13 @@
+{ "config" : {},
+    "processes" : [{  
+                "name": "SimultaneousPlayAzElDmp",
+             "command": "python endlessprint.py",
+                 "run": false,  
+                "initial_delay": 0.5  
+             },
+                 {  
+                "name": "Endless print",
+             "command": "python endlessprint.py",
+                 "run": true    }]
+
+}

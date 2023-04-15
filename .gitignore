@@ -1,0 +1,15 @@
+*.exe
+*.ini
+*.pyc
+*.spec
+*.csv
+*.aliases
+*.pyz
+*.toc
+*.pkg
+*.zip
+*.sq3
+build/
+__pycache__/
+/.vs
+__pycache__
