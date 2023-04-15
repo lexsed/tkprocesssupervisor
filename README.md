@@ -21,10 +21,10 @@ configuration for a single process.  The dictionary contains the following keys:
 
 ## Compilation
 
-The program can be compiled to an exe using pyinstaller, with the provided 'makeexe.bat' batch on Windows.
+The program can be compiled to an exe using pyinstaller, with the provided `makeexe.bat` batch on Windows.
 
-* ![default icon](./icon32.png) processsupervisorw.exe - a program without the console window
-* ![default icon](./icon32.png) processsupervisor.exe - pops up console
+* ![default icon](./icon32.png) `processsupervisorw.exe` - a program without the console window
+* ![default icon](./icon32.png) `processsupervisor.exe` - pops up console
 
 
 ## Example appearance
