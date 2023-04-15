@@ -1,7 +1,7 @@
 { "config" : {},
     "processes" : [{  
-                "name": "SimultaneousPlayAzElDmp",
-             "command": "python endlessprint.py",
+                "name": "ping",
+             "command": "ping 127.0.0.1 -n 4",
                  "run": false,  
                 "initial_delay": 0.5  
              },

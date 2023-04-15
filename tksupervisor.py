@@ -24,13 +24,15 @@ configuration for a single process.  The dictionary contains the following keys:
 import time
 from mypgroup import myprocess, MyPGroup
 import argparse
+import json
+import psutil
 
 import tkinter as tk
 import tkinter.tix as tix
 import tkinter.ttk as ttk
 
 import json
-
+import tkinter.font
 
 
 
@@ -64,73 +66,111 @@ class MySupervisorWindow(tix.Tk):
         self.after(500, self.update)
 
     def pg_status(self):
-        for proc in self.pgroup.processses:
+        for i,proc in enumerate(self.pgroup.processses):
             state = ''
             if proc.running():
-                state = 'running'
+                state = '🏃 running'
             else:
                 if proc.run == False:
-                    state = 'stopped'
+                    state = '🛑 stopped'
                 else:
                     if proc.backoff>0:
-                        state = 'backoff {proc.backoff:0.1f}s}'
+                        state = f'⌛ backoff {proc.backoff:0.1f}s '
                     else:
-                        state = 'not running'
+                        state = '⚠️ not running '
 
-            yield f'{proc.name} \t {state}'
+
+            usage = proc.cpuusage()
+            yield f'{i:02d}: {state:20s} | {proc.name:30s} | {usage}'
         
         
     def create_widgets(self):
-        self.left_frame = tk.Frame(self)
-        self.left_frame.pack(side=tk.LEFT, fill=tk.Y, expand=True)
-        self.process_list = tk.Listbox(self.left_frame, width=60)
+
+        # frame with main controls
+        self.control_frame = tk.Frame(self)
+        self.control_frame.pack(side=tk.TOP, fill=tk.X, expand=False)
+        sep = ttk.Separator(self.control_frame, orient=tk.HORIZONTAL)
+        sep.pack(side=tk.LEFT, fill=tk.Y, expand=False, padx=10, pady=5)
+
+
+        self.button_start = tk.Button(self.control_frame, text="Start", command=lambda: self.do_selected(self.start))
+        self.button_start.pack(side=tk.LEFT, fill=tk.X, expand=False)
+        
+        self.button_start = tk.Button(self.control_frame, text="Restart", command=lambda: self.do_selected(self.restart))
+        self.button_start.pack(side=tk.LEFT, fill=tk.X, expand=False)
+
+        self.button_stop = tk.Button(self.control_frame, text="Stop", command= lambda: self.do_selected(self.stop))
+        self.button_stop.pack(side=tk.LEFT, fill=tk.X, expand=False)
+
+        sep = ttk.Separator(self.control_frame, orient=tk.HORIZONTAL)
+        sep.pack(side=tk.LEFT, fill=tk.Y, expand=False, padx=30, pady=5)
+
+
+        self.button_start = tk.Button(self.control_frame, text="Start all", command=self.start)
+        self.button_start.pack(side=tk.LEFT, fill=tk.X, expand=False)
+        
+        self.button_start = tk.Button(self.control_frame, text="Restart all", command=self.start)
+        self.button_start.pack(side=tk.LEFT, fill=tk.X, expand=False)
+
+        self.button_stop = tk.Button(self.control_frame, text="Stop all", command=self.stop)
+        self.button_stop.pack(side=tk.LEFT, fill=tk.X, expand=False)
+
+        ###
+        # frame with process list and text widget for output
+
+        self.left_frame = tk.PanedWindow(self,orient="vertical")
+        self.left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        self.process_list = tk.Listbox(self.left_frame)
         self.process_list.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         # bind double click to listbox
         self.process_list.bind('<Double-1>', self.on_double_click)
         
+        self.notebook = ttk.Notebook(self.left_frame)
+        self.notebook.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         # a terminal-like text widget
-        self.text = tk.Text(self.left_frame, width=60, height=10)
-        self.text.pack(side=tk.TOP, fill=tk.BOTH, expand=False)
+        self.text = tk.Text(self.notebook, width=60, height=10)
+        self.text.pack(side=tk.TOP, fill=tk.BOTH)
         self.text.configure(bg='lightgray')  # disable text widget
+        
+        self.item_font =tkinter.font.Font( family = "Courier New", 
+                                 size = 10, 
+                                 weight = "normal")
+        
+        self.process_list.configure(font=self.item_font)
+        
+
+        self.notebook.add(self.text, text='Output')
+
+        self.config = tk.Text(self.notebook, width=60, height=10)
+        self.config.pack(side=tk.TOP, fill=tk.BOTH)
+        self.config.configure(bg='lightgray')  # disable text widget
+        self.notebook.add(self.config, text='Config')
+
+        self.process_list.bind("<<ListboxSelect>>", self.on_listbox_select)
+
+    
+
+        
         # add a vertical scrollbar to the text widget
-        
-
-
-
-        
-
-        self.right_frame = tk.Frame(self)
-        self.right_frame.pack(side=tk.RIGHT, fill=tk.Y, expand=True)
+        self.left_frame.add(self.process_list)
+        self.left_frame.add(self.notebook)
 
 
 
 
-        self.button_start = tk.Button(self.right_frame, text="Start", command=lambda: self.do_selected(self.start))
-        self.button_start.pack(side=tk.TOP, fill=tk.X, expand=True)
-        
-        self.button_start = tk.Button(self.right_frame, text="Restart", command=lambda: self.do_selected(self.restart))
-        self.button_start.pack(side=tk.TOP, fill=tk.X, expand=True)
 
-        self.button_stop = tk.Button(self.right_frame, text="Stop", command= lambda: self.do_selected(self.stop))
-        self.button_stop.pack(side=tk.TOP, fill=tk.X, expand=True)
-
-        sep = ttk.Separator(self.right_frame, orient=tk.HORIZONTAL)
-        sep.pack(side=tk.TOP, fill=tk.X, expand=True,)
-
-
-        self.button_start = tk.Button(self.right_frame, text="Start all", command=self.start)
-        self.button_start.pack(side=tk.TOP, fill=tk.X, expand=True)
-        
-        self.button_start = tk.Button(self.right_frame, text="Restart all", command=self.start)
-        self.button_start.pack(side=tk.TOP, fill=tk.X, expand=True)
-
-        self.button_stop = tk.Button(self.right_frame, text="Stop all", command=self.stop)
-        self.button_stop.pack(side=tk.TOP, fill=tk.X, expand=True)
-
-        sep = ttk.Separator(self.right_frame, orient=tk.HORIZONTAL)
-        sep.pack(side=tk.TOP, fill=tk.BOTH, expand=True, )
+    def on_listbox_select(self, event):
+        selected = self.process_list.curselection()
+        if len(selected) == 1:
+            index = selected[0]
+            self.config.delete('1.0', tk.END)
+            formatted =json.dumps(self.pgroup.iget_process(index).process_entry, indent=4)
+            self.config.insert(tk.END, formatted)
+            self.config.configure(bg='lightgray')
+            
 
 
     def on_double_click(self, event):
@@ -175,12 +215,15 @@ class MySupervisorWindow(tix.Tk):
 
             
     def update(self):
-        sel = None
+        
 
+        # save the selected items
         selected = self.process_list.curselection()
+
         for i, status in list(enumerate(self.pg_status())):
             self.process_list.delete(i)
             self.process_list.insert(i, status)
+            
             if 'running' in status:
                 self.process_list.itemconfig(i, dict(bg='lightgreen'))
             elif 'backoff' in status:
@@ -188,13 +231,15 @@ class MySupervisorWindow(tix.Tk):
             elif 'stopped' in status:
                 self.process_list.itemconfig(i, dict(bg='yellow'))
 
+
         if selected:
+            # reselect the selected items
             self.process_list.selection_set(selected)
 
             
             #self.process_list.itemconfigure(i, element=status)
 
-        if selected:
+        if selected and len(selected) == 1 and self.notebook.index(self.notebook.select()) == 0:
             buffer = self.pgroup.processses[selected[0]].buffer
             self.text.delete(1.0, tk.END)
             self.text.insert(tk.END, buffer)

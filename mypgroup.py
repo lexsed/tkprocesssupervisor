@@ -18,6 +18,7 @@ import subprocess
 import threading
 import time
 from minexpect import minExpect
+import psutil
 
 
 class myprocess():
@@ -25,6 +26,7 @@ class myprocess():
     def __init__(self, process_entry):
         self.process_entry = process_entry
         self.name = process_entry["name"]
+        self.command = process_entry["command"]
         
         
         self.buffer = ""
@@ -37,6 +39,7 @@ class myprocess():
         self.thread = threading.Thread(target=lambda : self._manager_thread())
         
         
+        self.was_running = False
         self.backoff_on_restart = process_entry.get("backoff_on_restart", 2)
         
 
@@ -58,6 +61,7 @@ class myprocess():
 
         try: 
             self.process = minExpect(self.process_entry["command"])
+            self.was_running = True
             return True
         except Exception as e:
             print(f"error starting process: {e}")
@@ -69,6 +73,14 @@ class myprocess():
         self._stop_process()
         self.run = True
         self._backoff(self.backoff_on_restart)
+
+    def cpuusage(self):
+        try:
+            if self.process:
+                return psutil.Process(self.process.child.pid).cpu_percent()
+        except:
+            pass
+        return float("nan")
 
 
 
@@ -126,10 +138,20 @@ class myprocess():
             try:
                 while self.manage:
                     if self.run:
-                        if not self.running() and self.backoff <= 0:
-                            self._start_process()
-                            self._backoff()
-                            self.buffer = ""
+                        if not self.running():
+                            if self.was_running:
+                                # detercted a restart
+                                self.was_running = False
+                                try:
+                                    self.last_return_code = self.process.child.poll()
+                                except Exception as e:
+                                    pass
+                                self._backoff() # backoff on restart
+                            
+                            if self.backoff <= 0:
+                                self._start_process()
+                                self._backoff()
+                                #self.buffer = ""
                         else:
                             self._check_buffer()
                     else:
