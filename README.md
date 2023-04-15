@@ -5,8 +5,11 @@
 This is a simple process supervisor that uses tkinter to display the status of
 multiple processes.  
 
-The processes are defined in a json file.  The json file has two
-top level keys, "config" and "processes". 
+The processes are defined in a json file, by default named `proc_supervisor.json` in the working folder,
+however the software will take the file name of the file as an argument.
+
+
+The json file has two top level keys, "config" and "processes". 
 
 The "config" key contains a dictionary of configuration items.  (TBD)
 
@@ -18,6 +21,29 @@ configuration for a single process.  The dictionary contains the following keys:
     "run" - True if the process should be started when the supervisor is started
     "initial_delay" - the number of seconds to wait before starting the process
     "backoff_on_restart" - the number of seconds to wait before restarting the process
+
+## Example configuration used for testing    
+```
+{ "config" : {},
+    "processes" : [{  
+                "name": "ping",
+             "command": "ping 127.0.0.1 -n 4",
+                 "run": false,  
+                "initial_delay": 0.5  
+             },
+                 {  
+                "name": "Endless print",
+             "command": "python endlessprint.py",
+                 "run": true    },
+                    {   
+                "name": "winver",
+                "command": "winver.exe",
+                    "run": false    }
+                        
+                
+                ]
+}
+```
 
 ## Compilation
 
