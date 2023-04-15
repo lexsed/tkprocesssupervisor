@@ -91,7 +91,8 @@ class myprocess():
         
         
     def _stop_process(self):
-        self.last_return_code = self.process.close()
+        if self.process:
+            self.last_return_code = self.process.close()
         self.process = None
 
 
@@ -103,7 +104,9 @@ class myprocess():
     
     def _check_buffer(self):
             try: 
-                for i in range(32): # read up to 32 times to get all the data
+                for i in range(10): # read up to 10 times to get all the data
+                    if self.process.child.poll() is not None:
+                        break
                     data = self.process.readAllSoFar()
                     if data: 
                         self.buffer += data
@@ -165,7 +168,9 @@ class myprocess():
                     time.sleep(0.1)
                     self._check_backoff()
             except Exception as e:
-                print(f"manager thread exit {self.name}")
+                pass
+            self._stop_process()
+            print(f"manager thread exit {self.name}")
                 
                 
 
@@ -182,14 +187,17 @@ class myprocess():
         return self.buffer
         
 
-    def __exit__(self, exc_type, exc_value, traceback):
-        self.run = False
-
+    def destroy(self):
+        self.stop()
         self.manage = False
         self.thread.join()
+
+
+    def __del__(self):
+        self.destroy()
     
-
-
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.destroy()
         return False
     
     def __enter__(self):
@@ -229,6 +237,7 @@ class MyPGroup:
         self.processses[idx].start()
 
     def istop(self, idx):
+        print(f"stopping {idx}")
         self.processses[idx].stop()
 
     def irestart(self, idx):
@@ -237,6 +246,11 @@ class MyPGroup:
     def stop_all(self):
         for i,proc in enumerate(self.processses):
             self.istop(i)
+
+
+    def destroy(self):
+        for proc in self.processses:
+            proc.destroy()
 
     def start_all(self):
         for proc in self.processses:

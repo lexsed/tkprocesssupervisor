@@ -264,13 +264,14 @@ class MySupervisorWindow(tk.Tk):
 
         self.after(500, self.update)
 
-        def __enter__(self):
-            return self
-        
-        def __exit__(self, exc_type, exc_value, traceback):
-            self.processes.stop_all()
-            return False
+    def __enter__(self):
+        return self
     
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.pgroup.stop_all()
+        self.pgroup.destroy()
+        return False
+
 
 
 def main():
@@ -286,3 +287,4 @@ def main():
 	
 if __name__ == "__main__":
     main()
+    print('done')

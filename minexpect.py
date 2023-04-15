@@ -196,8 +196,9 @@ class minExpect:
         except subprocess.TimeoutExpired:
             print("timeout on close")
             if self.child.poll() is  None:
+                self.child.terminate()
                 self.child.kill()  # kill the process if it doesn't exit
-            
+
             pass
         return self.child.poll()
 
