@@ -149,7 +149,7 @@ class MySupervisorWindow(tk.Tk):
                                  weight = "normal")
         
         # add a vertical scrollbar to the text widget
-        self.scroll_yscroll = tk.Scrollbar(self.text, orient=tk.VERTICAL, command=self.text.yview)
+        self.scroll_yscroll = ttk.Scrollbar(self.text, orient=tk.VERTICAL, command=self.text.yview)
         self.scroll_yscroll.pack(side=tk.RIGHT, fill=tk.Y)
         self.text['yscrollcommand'] = self.scroll_yscroll.set
         
@@ -188,9 +188,11 @@ class MySupervisorWindow(tk.Tk):
 
 
     def on_double_click(self, event):
+        """Double click on a process to start it"""
         self.do_selected(self.start)
     
     def do_selected(self, func):
+        """Do something to the selected processes"""
         selected = self.process_list.curselection()
         for i in selected:
             func(i)
