@@ -63,7 +63,10 @@ else:
                 
 
     def stop_pid(pid, force=False):
-        return os.system(f"taskkill /PID {pid} /T{ ' /F' if force else '' }")
+        if pid is not None and pid:
+            # ensure that the pid is valid
+            return os.system(f"taskkill /PID {pid} /T{ ' /F' if force else '' }")
+        return 0
 
 
 
