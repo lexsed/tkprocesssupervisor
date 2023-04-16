@@ -112,6 +112,8 @@ class myprocess():
                         self.buffer += data
                         if len(self.buffer) > self.buffer_size:
                             chomp = len(self.buffer) - self.buffer_size
+                            if '\n' in self.buffer: # chomp to the at least a newline
+                                chomp = max(self.buffer.find('\n'), chomp)
                             self.buffer = self.buffer[chomp:]
                     else:
                         break # no more data, no more reads

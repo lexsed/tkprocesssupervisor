@@ -6,7 +6,7 @@ import time
 try:
     while True:
         print(f"Process running, {time.time()}")
-        time.sleep(1)
+        time.sleep(.2)
 
 except SystemExit:
     print("SystemExit")
