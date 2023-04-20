@@ -97,7 +97,7 @@ class minExpect:
         for fd in [
                         self.child.stdout.fileno(),
                         #self.child.stderr.fileno(),
-                        self.child.stdin.fileno(),
+                        #self.child.stdin.fileno(),
                         ]:
             pipe_no_wait(fd)
 
