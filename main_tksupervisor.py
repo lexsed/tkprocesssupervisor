@@ -131,15 +131,21 @@ class MySupervisorWindow(tk.Tk):
         self.left_frame = tk.PanedWindow(self,orient="vertical")
         self.left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        self.process_list = ttk.Treeview(self.left_frame, columns=('number','state', 'name', 'command'), show='headings')
+        self.item_font =tkinter.font.Font( family = "Courier New", 
+                                 size = 10, 
+                                 weight = "normal")
+        self.process_list_style = ttk.Style()
+        self.process_list_style.configure("Treeview", font=self.item_font)
+
+        self.process_list = ttk.Treeview(self.left_frame, columns=('number','state', 'name', 'command'), show='headings', style="Treeview")
         self.process_list.heading('#1', text='#')
         self.process_list.heading('#2', text='State')
         self.process_list.heading('#3', text='Name')
         self.process_list.heading('#4', text='Command')
 
         self.process_list.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-        self.process_list.column("# 1",anchor=tk.CENTER, stretch=tk.NO, width=20)
-        self.process_list.column("# 2",anchor=tk.W, stretch=tk.YES, width=80)
+        self.process_list.column("# 1",anchor=tk.CENTER, stretch=tk.NO, width=30)
+        self.process_list.column("# 2",anchor=tk.W, stretch=tk.YES, width=180)
         self.process_list.tag_configure('running', background='lightgreen')
         self.process_list.tag_configure('wait', background='lightgray')
         self.process_list.tag_configure('warning', background='yellow')
@@ -161,14 +167,16 @@ class MySupervisorWindow(tk.Tk):
         self.text.pack(side=tk.TOP, fill=tk.BOTH)
         self.text.configure(bg='lightgray')  # disable text widget
         
-        self.item_font =tkinter.font.Font( family = "Courier New", 
-                                 size = 10, 
-                                 weight = "normal")
+
         
         # add a vertical scrollbar to the text widget
         self.scroll_yscroll = ttk.Scrollbar(self.text, orient=tk.VERTICAL, command=self.text.yview)
         self.scroll_yscroll.pack(side=tk.RIGHT, fill=tk.Y)
         self.text['yscrollcommand'] = self.scroll_yscroll.set
+
+
+
+        
         
         #self.process_list.configure(font=self.item_font)
         
@@ -274,19 +282,19 @@ class MySupervisorWindow(tk.Tk):
             #item = self.process_list.item(i)
             self.process_list.item(i, values=status)
 
-            
-            if 'running' in status[1]:
+            state = status[1]
+            if 'running' in state:
                 #self.process_list.itemconfig(i, dict(bg='lightgreen'))
                 self.process_list.item(i, tags=('running',))
                 
 
-            elif 'backoff' in status:
+            elif 'backoff' in state:
                 #self.process_list.itemconfig(i, dict(bg='gray'))
                 self.process_list.item(i, tags=('wait',))
-            elif 'not running' or 'stopping' in status:
+            elif 'not running' or 'stopping' in state:
                 self.process_list.item(i, tags=('warning',))
 
-            elif 'stopped' in status:
+            elif 'stopped' in state:
                 self.process_list.item(i, tags=('normal',))
                 #self.process_list.itemconfig(i, dict(bg='yellow'))
 
