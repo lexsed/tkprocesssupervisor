@@ -146,10 +146,11 @@ class MySupervisorWindow(tk.Tk):
         self.process_list.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
         self.process_list.column("# 1",anchor=tk.CENTER, stretch=tk.NO, width=30)
         self.process_list.column("# 2",anchor=tk.W, stretch=tk.YES, width=180)
+
         self.process_list.tag_configure('running', background='lightgreen')
         self.process_list.tag_configure('wait', background='lightgray')
         self.process_list.tag_configure('warning', background='yellow')
-        self.process_list.tag_configure('error', background='pink')
+        self.process_list.tag_configure('error', background='red')
         self.process_list.tag_configure('normal', background='white')
 
         # bind double click to listbox
@@ -291,10 +292,11 @@ class MySupervisorWindow(tk.Tk):
             elif 'backoff' in state:
                 #self.process_list.itemconfig(i, dict(bg='gray'))
                 self.process_list.item(i, tags=('wait',))
-            elif 'not running' or 'stopping' in state:
+            elif 'not running' in state:
+                self.process_list.item(i, tags=('error',))
+            elif 'stopping' in state:
                 self.process_list.item(i, tags=('warning',))
-
-            elif 'stopped' in state:
+            else:
                 self.process_list.item(i, tags=('normal',))
                 #self.process_list.itemconfig(i, dict(bg='yellow'))
 
