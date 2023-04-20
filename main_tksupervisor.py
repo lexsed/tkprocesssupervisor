@@ -90,7 +90,8 @@ class MySupervisorWindow(tk.Tk):
 
 
             
-            yield f'{i:02d}: {state:25s} | {proc.name:30s} | {proc.command:80s}'
+            #yield f'{i:02d}: {state:25s} | {proc.name:30s} | {proc.command:80s}'
+            yield (f'{i:02d}', state, proc.name, proc.command)
         
         
     def create_widgets(self):
@@ -130,11 +131,27 @@ class MySupervisorWindow(tk.Tk):
         self.left_frame = tk.PanedWindow(self,orient="vertical")
         self.left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        self.process_list = tk.Listbox(self.left_frame)
+        self.process_list = ttk.Treeview(self.left_frame, columns=('number','state', 'name', 'command'), show='headings')
+        self.process_list.heading('#1', text='#')
+        self.process_list.heading('#2', text='State')
+        self.process_list.heading('#3', text='Name')
+        self.process_list.heading('#4', text='Command')
+
         self.process_list.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        self.process_list.column("# 1",anchor=tk.CENTER, stretch=tk.NO, width=20)
+        self.process_list.column("# 2",anchor=tk.W, stretch=tk.YES, width=80)
+        self.process_list.tag_configure('running', background='lightgreen')
+        self.process_list.tag_configure('wait', background='lightgray')
+        self.process_list.tag_configure('warning', background='yellow')
+        self.process_list.tag_configure('error', background='pink')
+        self.process_list.tag_configure('normal', background='white')
 
         # bind double click to listbox
+        #self.process_list.bind('<Double-1>', self.on_double_click)
         self.process_list.bind('<Double-1>', self.on_double_click)
+        self.process_list.bind('<Return>', self.on_double_click)
+        self.process_list.bind('<<TreeviewSelect>>', self.on_listbox_select)
+
         
         self.notebook = ttk.Notebook(self.left_frame)
         self.notebook.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
@@ -153,7 +170,7 @@ class MySupervisorWindow(tk.Tk):
         self.scroll_yscroll.pack(side=tk.RIGHT, fill=tk.Y)
         self.text['yscrollcommand'] = self.scroll_yscroll.set
         
-        self.process_list.configure(font=self.item_font)
+        #self.process_list.configure(font=self.item_font)
         
 
         self.notebook.add(self.text, text='Output')
@@ -163,7 +180,7 @@ class MySupervisorWindow(tk.Tk):
         self.config.configure(bg='lightgray')  # disable text widget
         self.notebook.add(self.config, text='Config')
 
-        self.process_list.bind("<<ListboxSelect>>", self.on_listbox_select)
+        #self.process_list.bind("<<ListboxSelect>>", self.on_listbox_select)
 
     
 
@@ -177,7 +194,11 @@ class MySupervisorWindow(tk.Tk):
 
 
     def on_listbox_select(self, event):
-        selected = self.process_list.curselection()
+        try:
+            selected = [int(self.process_list.focus())]
+        except:
+            selected = []
+            
         if len(selected) == 1:
             index = selected[0]
             self.config.delete('1.0', tk.END)
@@ -193,9 +214,9 @@ class MySupervisorWindow(tk.Tk):
     
     def do_selected(self, func):
         """Do something to the selected processes"""
-        selected = self.process_list.curselection()
-        for i in selected:
+        for i in self._get_selected():
             func(i)
+
         
 
     def start(self, index=None):
@@ -221,40 +242,63 @@ class MySupervisorWindow(tk.Tk):
 
     def configure_widgets(self):
         
-        self.process_list.delete(0, tk.END) # clear the list
+        #self.process_list.delete(0, tk.END) # clear the list
         # fill out the list
 
-        for proc_text in self.pg_status():
-            self.process_list.insert(tk.END, proc_text)
+        for i, proc_text in enumerate(self.pg_status()):
+            #self.process_list.insert(tk.END, proc_text)
+            self.process_list.insert('', 'end', i, values=proc_text)
+
 
         
 
             
+    def _get_selected(self):
+        selected = self.process_list.focus()
+        try:
+            i = int(selected)
+            return [i]
+        except:
+            return []
+    
     def update(self):
         
 
         # save the selected items
-        selected = self.process_list.curselection()
+        #selected = self.process_list.focus()
 
         for i, status in list(enumerate(self.pg_status())):
-            self.process_list.delete(i)
-            self.process_list.insert(i, status)
+
+            #self.process_list.delete(i)
+            #self.process_list.insert(i, status)
+            #item = self.process_list.item(i)
+            self.process_list.item(i, values=status)
+
             
-            if 'running' in status:
-                self.process_list.itemconfig(i, dict(bg='lightgreen'))
+            if 'running' in status[1]:
+                #self.process_list.itemconfig(i, dict(bg='lightgreen'))
+                self.process_list.item(i, tags=('running',))
+                
+
             elif 'backoff' in status:
-                self.process_list.itemconfig(i, dict(bg='gray'))
+                #self.process_list.itemconfig(i, dict(bg='gray'))
+                self.process_list.item(i, tags=('wait',))
+            elif 'not running' or 'stopping' in status:
+                self.process_list.item(i, tags=('warning',))
+
             elif 'stopped' in status:
-                self.process_list.itemconfig(i, dict(bg='yellow'))
+                self.process_list.item(i, tags=('normal',))
+                #self.process_list.itemconfig(i, dict(bg='yellow'))
 
 
-        if selected:
+        #if selected:
             # reselect the selected items
-            self.process_list.selection_set(selected)
+        #    self.process_list.selection_set(selected)
 
             
             #self.process_list.itemconfigure(i, element=status)
 
+        selected = self._get_selected()
         if selected and len(selected) == 1 and self.notebook.index(self.notebook.select()) == 0:
             buffer = self.pgroup.processses[selected[0]].buffer
             self.text.delete(1.0, tk.END)
