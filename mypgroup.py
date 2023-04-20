@@ -18,7 +18,7 @@ import subprocess
 import threading
 import time
 from minexpect import minExpect
-import psutil
+
 
 
 class myprocess():
@@ -38,7 +38,7 @@ class myprocess():
         
         self.thread = threading.Thread(target=lambda : self._manager_thread())
         
-        
+        self.rerun = process_entry.get("rerun", True)
         self.was_running = False
         self.backoff_on_restart = process_entry.get("backoff_on_restart", 2)
         
@@ -74,14 +74,6 @@ class myprocess():
         self._stop_process()
         self.run = True
         self._backoff(self.backoff_on_restart)
-
-    def cpuusage(self):
-        try:
-            if self.process:
-                return psutil.Process(self.process.child.pid).cpu_percent()
-        except:
-            pass
-        return float("nan")
 
 
 
@@ -146,8 +138,11 @@ class myprocess():
                     if self.run:
                         if not self.running():
                             if self.was_running:
-                                # detercted a restart
+                                # detected a process that was running, but is no longer running
+                                # this could be a crash, or a normal exit
                                 self.was_running = False
+                                self.run = self.rerun # if rerun is false, then the process will not be restarted
+
                                 try:
                                     self.last_return_code = self.process.child.poll()
                                     self.pid = None

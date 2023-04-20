@@ -89,8 +89,8 @@ class MySupervisorWindow(tk.Tk):
                         state = '⚠️ not running '
 
 
-            usage = proc.cpuusage()
-            yield f'{i:02d}: {state:20s} | {proc.name:30s} | {usage}%'
+            
+            yield f'{i:02d}: {state:25s} | {proc.name:30s} | {proc.command:80s}'
         
         
     def create_widgets(self):

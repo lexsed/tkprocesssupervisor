@@ -12,7 +12,8 @@
                     {   
                 "name": "winver",
                 "command": "winver.exe",
-                    "run": false    }
+                "run": false,
+                "rerun": false   }
                         
                 
                 ]

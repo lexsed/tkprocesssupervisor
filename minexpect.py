@@ -65,7 +65,10 @@ else:
     def stop_pid(pid, force=False):
         if pid is not None and pid:
             # ensure that the pid is valid
-            return os.system(f"taskkill /PID {pid} /T{ ' /F' if force else '' }")
+            #return os.system(f"taskkill /PID {pid} /T{ ' /F' if force else '' }")
+            # run the command using subprocess
+            return subprocess.call(f"taskkill /PID {pid} /T{ ' /F' if force else '' }", shell=True)
+        
         return 0
 
 
@@ -84,8 +87,8 @@ class minExpect:
         self.child = subprocess.Popen(
             command, bufsize=8192, 
             stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            stdout=subprocess.PIPE, 
+            stderr=subprocess.STDOUT, # merge stderr into stdout
             shell=shell,
         )
         
@@ -93,7 +96,7 @@ class minExpect:
         # fix for blocking reads on Linux
         for fd in [
                         self.child.stdout.fileno(),
-                        self.child.stderr.fileno(),
+                        #self.child.stderr.fileno(),
                         self.child.stdin.fileno(),
                         ]:
             pipe_no_wait(fd)
@@ -178,9 +181,14 @@ class minExpect:
         :rtype: class minExpect
         """
         # close all the standard streams
-        self.child.stdin.close()
-        self.child.stdout.close()
-        self.child.stderr.close()
+        try:
+            self.child.stdin.close()
+            self.child.stdout.close()
+            if self.child.stderr is not None:
+                self.child.stderr.close()
+        except:
+            print("error closing streams")
+            pass
         if isWindows():
             stop_pid(self.child.pid)
         

@@ -61,5 +61,5 @@ The program can be compiled to an exe using pyinstaller, with the provided `make
 ## Known bugs
 
 * The last part of the output of a process, when it is terminated may not be reproduced.
-* On exit a few console windows may flash
+* _On exit a few console windows may flash_
 
