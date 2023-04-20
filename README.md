@@ -52,7 +52,7 @@ configuration for a single process.  The dictionary contains the following keys:
 The program can be compiled to an exe using pyinstaller, with the provided `makeexe.bat` batch on Windows.
 
 * ![default icon](./img/icon32.png) `processsupervisorw.exe` - a program without the console window
-* ![default icon](./img/icon32.png) `processsupervisor.exe` - pops up console
+* ![default icon](./img/icon32.png) `processsupervisor.exe` - pops up a console window showing status
 
 
 ## Example appearance
@@ -63,5 +63,4 @@ The program can be compiled to an exe using pyinstaller, with the provided `make
 ## Known bugs
 
 * The last part of the output of a process, when it is terminated may not be reproduced.
-* _On exit a few console windows may flash_
 
