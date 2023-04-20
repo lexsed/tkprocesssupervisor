@@ -16,11 +16,12 @@ The "config" key contains a dictionary of configuration items.  (TBD)
 The "processes" key contains a list of dictionaries.  Each dictionary contains the
 configuration for a single process.  The dictionary contains the following keys:
 
-    "name" - the name of the process
-    "command" - the command to run
+    "name" - the name of the task (used in the GUI)
+    "command" - the command to run 
     "run" - True if the process should be started when the supervisor is started
-    "initial_delay" - the number of seconds to wait before starting the process
-    "backoff_on_restart" - the number of seconds to wait before restarting the process
+    "rerun" - rerun process if it terminated unexpectedly (True by default)
+    "initial_delay" - the number of seconds to wait before starting the process on first run
+    "backoff_on_restart" - the number of seconds to wait before restarting the process after it terminated unexpectedly
 
 ## Example configuration used for testing    
 ```
@@ -38,7 +39,8 @@ configuration for a single process.  The dictionary contains the following keys:
                     {   
                 "name": "winver",
                 "command": "winver.exe",
-                    "run": false    }
+                    "run": false ,
+                    "rerun": false   }
                         
                 
                 ]
