@@ -88,9 +88,6 @@ class MySupervisorWindow(tk.Tk):
                     else:
                         state = '⚠️ not running '
 
-
-            
-            #yield f'{i:02d}: {state:25s} | {proc.name:30s} | {proc.command:80s}'
             yield (f'{i:02d}', state, proc.name, proc.command)
         
         
@@ -138,15 +135,18 @@ class MySupervisorWindow(tk.Tk):
         self.process_list_style.configure("Treeview", font=self.item_font)
 
         self.process_list = ttk.Treeview(self.left_frame, columns=('number','state', 'name', 'command'), show='headings', style="Treeview")
+        # configure the headings
         self.process_list.heading('#1', text='#')
         self.process_list.heading('#2', text='State')
         self.process_list.heading('#3', text='Name')
         self.process_list.heading('#4', text='Command')
 
+        # configure the column widths
         self.process_list.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
         self.process_list.column("# 1",anchor=tk.CENTER, stretch=tk.NO, width=30)
         self.process_list.column("# 2",anchor=tk.W, stretch=tk.YES, width=180)
 
+        # configure the representation of the process state in the listbox
         self.process_list.tag_configure('running', background='lightgreen')
         self.process_list.tag_configure('wait', background='lightgray')
         self.process_list.tag_configure('warning', background='yellow')
@@ -154,7 +154,6 @@ class MySupervisorWindow(tk.Tk):
         self.process_list.tag_configure('normal', background='white')
 
         # bind double click to listbox
-        #self.process_list.bind('<Double-1>', self.on_double_click)
         self.process_list.bind('<Double-1>', self.on_double_click)
         self.process_list.bind('<Return>', self.on_double_click)
         self.process_list.bind('<<TreeviewSelect>>', self.on_listbox_select)
@@ -229,6 +228,7 @@ class MySupervisorWindow(tk.Tk):
         
 
     def start(self, index=None):
+        """Start the selected process, or all processes if none are selected"""
         if index is None:
             self.pgroup.start_all()
         else:
@@ -236,12 +236,14 @@ class MySupervisorWindow(tk.Tk):
         
 
     def stop(self, index=None):
+        """Stop the selected process, or all processes if none are selected"""
         if index is None:
             self.pgroup.stop_all()
         else:
             self.pgroup.istop(index)
 
     def restart(self, index=None):
+        """Restart the selected process, or all processes if none are selected"""
         if index is None:
             self.pgroup.restart_all()
         else:
@@ -250,12 +252,8 @@ class MySupervisorWindow(tk.Tk):
 
 
     def configure_widgets(self):
-        
-        #self.process_list.delete(0, tk.END) # clear the list
-        # fill out the list
-
+        """Configure the widgets in the beginning"""
         for i, proc_text in enumerate(self.pg_status()):
-            #self.process_list.insert(tk.END, proc_text)
             self.process_list.insert('', 'end', i, values=proc_text)
 
 
@@ -263,6 +261,7 @@ class MySupervisorWindow(tk.Tk):
 
             
     def _get_selected(self):
+        """Get the selected items in the listbox"""
         selected = self.process_list.focus()
         try:
             i = int(selected)
@@ -274,18 +273,11 @@ class MySupervisorWindow(tk.Tk):
         
 
         # save the selected items
-        #selected = self.process_list.focus()
-
         for i, status in list(enumerate(self.pg_status())):
-
-            #self.process_list.delete(i)
-            #self.process_list.insert(i, status)
-            #item = self.process_list.item(i)
             self.process_list.item(i, values=status)
 
             state = status[1]
             if 'running' in state:
-                #self.process_list.itemconfig(i, dict(bg='lightgreen'))
                 self.process_list.item(i, tags=('running',))
                 
 
@@ -298,15 +290,6 @@ class MySupervisorWindow(tk.Tk):
                 self.process_list.item(i, tags=('warning',))
             else:
                 self.process_list.item(i, tags=('normal',))
-                #self.process_list.itemconfig(i, dict(bg='yellow'))
-
-
-        #if selected:
-            # reselect the selected items
-        #    self.process_list.selection_set(selected)
-
-            
-            #self.process_list.itemconfigure(i, element=status)
 
         selected = self._get_selected()
         if selected and len(selected) == 1 and self.notebook.index(self.notebook.select()) == 0:
@@ -314,9 +297,6 @@ class MySupervisorWindow(tk.Tk):
             self.text.delete(1.0, tk.END)
             self.text.insert(tk.END, buffer)
             self.text.see(tk.END)
-
-
-
 
         self.after(500, self.update)
 
